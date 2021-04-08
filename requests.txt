@@ -1,0 +1,51 @@
+#ЗАДАНИЕ 1
+
+WITH CityMoreThenOne AS (
+	SELECT Customer.City
+	FROM Customer
+	GROUP BY Customer.City
+	HAVING count(Customer.City) > 1
+)
+SELECT Customer.FirstName, Customer.LastName, Customer.Phone
+FROM Customer
+WHERE City IN (SELECT City FROM CityMoreThenOne)
+ORDER BY Customer.City
+
+#ЗАДАНИЕ 2
+
+SELECT Invoice.BillingCity
+FROM Invoice
+GROUP BY Invoice.Total
+HAVING SUM(Invoice.Total)
+ORDER BY Invoice.Total LIMIT 3
+
+#ЗАДАНИЕ 3
+
+WITH MostPopular as (
+	SELECT Genre.Name 
+	FROM InvoiceLine
+	JOIN Track
+		ON Track.TrackId = InvoiceLine.TrackId
+	JOIN Genre
+		ON Genre.GenreId = Track.GenreId
+	JOIN Album
+		ON Album.AlbumId = Track.AlbumId
+	JOIN Artist
+		ON Artist.ArtistId = Album.ArtistId
+	GROUP BY Genre.Name
+	ORDER BY COUNT(Genre.Name) DESC LIMIT 1
+)
+
+SELECT Genre.Name, Track.Name, Album.Title, Artist.Name
+FROM InvoiceLine
+	JOIN Track
+		ON Track.TrackId = InvoiceLine.TrackId
+	JOIN Genre
+		ON Genre.GenreId = Track.GenreId
+	JOIN Album
+		ON Album.AlbumId = Track.AlbumId
+	JOIN Artist
+		ON Artist.ArtistId = Album.ArtistId
+WHERE Genre.Name IN (SELECT Name FROM MostPopular)
+GROUP BY Track.TrackId
+ORDER BY Track.Name
